@@ -590,7 +590,8 @@ string Dapai( vector<string> hand,vector<pair<string, pair<string, int> > > pack
         string anse;
         rt=test_shanten(sff);
         ret=rt.first;
-        ret+=0.01;
+        ret+=0.0001;
+		ans+=5000-500*ret;
         anse=rt.second;
         //cout<<anse<<endl;
         //cout<<"???"<<endl;
@@ -614,7 +615,7 @@ string Dapai( vector<string> hand,vector<pair<string, pair<string, int> > > pack
             if (position != anse.npos)
             {
                 //cout<<"!!@!@!@#!@#"<<endl;
-                ans+=(double)((double)num[ttmp.first][ttmp.second]/(double)lastans)/(double)ret;
+                ans+=(double)(((double)num[ttmp.first][ttmp.second]/(double)lastans))*300;
             }
         }
         //cout<<endl;
@@ -703,18 +704,18 @@ int main()
                 else if(stmp1=="GANG"){
                 	sort(hand.begin(),hand.end());
                 	for(int i=0;i<4;i++)unhand.push_back(stmp2);  //加入暗杠的手牌 
-                	for(auto i:hand){
-                		if(i==stmp2)i[0]-='A'-'a';//把杠牌全部变成小写 
+                	for(int i=0;i<hand.size();i++){
+                		if(hand[i]==stmp2)hand[i][0]-='A'-'a';//把杠牌全部变成小写 
 					}
 					sort(hand.begin(),hand.end());
 				}
                 else if(stmp1=="BUGANG"){
-                	for(auto i:hand){
-                		if(i==stmp2)i[0]-='A'-'a';//把杠牌全部变成小写 
+                	for(int i=0;i<hand.size();i++){
+                		if(hand[i]==stmp2)hand[i][0]-='A'-'a';//把杠牌全部变成小写 
 					}
-					for(auto i:pack){
-						if(i.first=="PENG"&&i.second.first==stmp2){  //之前一定碰过,直接改 
-							i.first="GANG";
+					for(int i=0;i<pack.size();i++){
+						if(pack[i].first=="PENG"&&pack[i].second.first==stmp2){  //之前一定碰过,直接改 
+							pack[i].first="GANG";
 						}
 					} 
 					sort(hand.begin(),hand.end());
@@ -742,8 +743,8 @@ int main()
 			        if(myPlayerID==itmp){  //相当于我碰牌成功 
 			        	
 						pack.push_back({"PENG",{LastCard,fff(myPlayerID,Lastuser)}});
-						for(auto i:hand){
-                		    if(i==LastCard)i[0]-='A'-'a';//把碰牌全部变成小写 
+						for(int i=0;i<hand.size();i++){
+                		    if(hand[i]==LastCard)hand[i][0]-='A'-'a';//把碰牌全部变成小写 
 					    }LastCard[0]-='A'-'a';
 					    hand.push_back(LastCard); 
 					    
@@ -804,6 +805,14 @@ int main()
 						//明杠 
 						pii a=f(LastCard);
 			            num[a.first][0]-=3;num[a.first][a.second]-=3;
+			            if(myPlayerID==itmp){
+			            	for(int i=0;i<hand.size();i++)
+			            	{
+			            		if(hand[i]==LastCard){
+			            			hand[i][0]-='A'-'a';
+								}
+							}
+						}
 					} 
 				}
 				else if(stmp=="BUGANG"){
@@ -820,7 +829,8 @@ int main()
 		sin.clear();
         sin.str(request[turnID]);
         //正题开始 
-        
+        sort(hand.begin(),hand.end()); 
+        //for(int i=0;i<hand.size();i++)sout<<hand[i]<<" ";
         sin >> itmp;
 		bool ok=false;//表示是否已经给出回应
         if(itmp == 2) {
