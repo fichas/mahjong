@@ -59,9 +59,9 @@ string ff(int x,int y)//牌型转化2
 }
 int fff(int myID,int playID)//判断是那家供牌 
 {
-	if((myID-1+4)%4==playID)return 0;//上家供牌 
-	if((myID+1)%4==playID)return 2;//下家供牌 
-	return 1;//对家供牌 
+	if((myID-1+4)%4==playID)return 1;//上家供牌 
+	if((myID+1)%4==playID)return 3;//下家供牌 
+	return 2;//对家供牌 
 }
 bool CheckHu(int num[10],int k){
 	for(int i=1;i<=k;i++)if(num[i]<0)return false;
@@ -428,8 +428,180 @@ pair<int,string> test_shanten(const char *str)
     //cout<<"??wtf"<<endl;
     return make_pair(ret,ans);
 }
+double judge( vector<string> hand,vector<pair<string, pair<string, int> > > pack,int num[6][10],int myPlayerID,int quan)
+{
+    //"PENG" "GANG" "CHI"
+    //cout<<"wobuhuole"<<endl;
+    int map[10][15]={0};
+    for(int i=0;i<=5;i++)
+    {
+        for(int j=0;j<=10;j++)
+        {
+            map[i][j]=0;
+           // cout<<i<<" "<<j<<endl;
+        }
+        
+    }
+    //cout<<"wobuhuole"<<endl;
+    string ming;
+   // cout<<"wobuhuole"<<endl;
+   // cout<<pack.size()<<endl;
+    for(int i=0;i<pack.size();i++)
+    {
+        ming+='[';
+        if(pack[i].first=="PENG")
+        {
+            ming+=sw(pack[i].second.first,1);
+        }
+        if(pack[i].first=="GANG")
+        {
+            ming+=sw(pack[i].second.first,2);
+        }
+        if(pack[i].first=="CHI")
+        {
+            ming+=sw(pack[i].second.first,3);
+        }
+        ming+=']';
+    }
 
-string Dapai( vector<string> hand,vector<pair<string, pair<string, int> > > pack,int num[6][10],int myPlayerID,int quan)
+//cout<<"wobuhuole"<<endl;
+
+    for(int i=0;i<hand.size();i++)
+    {
+        if(hand[i][0]=='W')
+        {
+            int t=hand[i][1]-'0';
+            map[1][t]++;
+        }
+        if(hand[i][0]=='B')
+        {
+            int t=hand[i][1]-'0';
+            map[3][t]++;
+        }
+        if(hand[i][0]=='T')
+        {
+            int t=hand[i][1]-'0';
+            map[2][t]++;
+        }
+        if(hand[i][0]=='F')
+        {
+            int t=hand[i][1]-'0';
+            map[4][t]++;
+        }
+        if(hand[i][0]=='J')
+        {
+            int t=hand[i][1]-'0';
+            map[4][4+t]++;
+        }
+
+    }
+    
+    int cnt=0;
+    int last=0;
+    int lastans=0;
+    vector <pair<int,int> > lastp;
+    for(int i=1;i<=4;i++)
+    {
+        for(int j=1;j<=9;j++)
+        {
+            if(map[i][j]!=0)cnt++;
+        }
+    }
+    
+    for(int i=1;i<=5;i++)
+    {
+        for(int j=1;j<=9;j++)
+        {
+            if(i==4&&j>4)continue;
+            if(i==5&&j>3)continue;
+            if(num[i][j])
+            {
+                
+                pair<int,int> t;
+                t.first=i;
+                t.second=j;
+                lastp.push_back(t);
+                last++;
+            }
+            lastans+=num[i][j];
+        }
+    }
+        string tmp;
+        tmp+=ming;
+        int tcnt=0;
+        double ans=0;
+        int tx=0,ty=0;
+        int tmap[6][10]={0};
+        for(int i=1;i<=4;i++)
+        {
+            int ad=0;
+            for(int j=1;j<=9;j++)
+            {
+                if(map[i][j])tcnt++;
+                tmap[i][j]=map[i][j];
+                
+                for(int t=1;t<=tmap[i][j];t++)
+                {
+                    ad=1;
+                    if(i!=4)
+                    {
+                        tmp +=change(j);
+                    }
+                    else
+                    {
+                        tmp += chang(j);
+                    }
+                }
+            }
+            if(i!=4&&ad)
+            {
+                if(i==1)tmp+='m';
+                if(i==2)tmp+='s';
+                if(i==3)tmp+='p';
+            }
+        }
+        
+        char sff[80];
+        for(int i=0;i<=tmp.size();i++)
+        {
+            sff[i]=tmp[i];
+            
+        }
+        
+        double ret=10086;
+        pair<int,string> rt;
+        string anse;
+        rt=test_shanten(sff);
+        ret=rt.first;
+        ret+=0.0001;
+		ans+=5000-500*ret;
+        anse=rt.second;
+
+        for(int i=0;i<last;i++)
+        {
+
+            pair<int,int> ttmp;
+
+            ttmp=lastp[i];
+
+            string wt=cover(ttmp.first,ttmp.second);
+
+            string::size_type position;
+ 
+            //find 函数 返回jk 在s 中的下标位置 
+            position = anse.find(wt);
+            if (position != anse.npos)
+            {
+                //cout<<"!!@!@!@#!@#"<<endl;
+                ans+=(double)(((double)num[ttmp.first][ttmp.second]/(double)lastans))*300;
+            }
+        }
+        //cout<<endl;
+        
+        
+    return ans;
+}
+pair<double ,string> Dapai( vector<string> hand,vector<pair<string, pair<string, int> > > pack,int num[6][10],int myPlayerID,int quan)
 {
     //"PENG" "GANG" "CHI"
     //cout<<"wobuhuole"<<endl;
@@ -633,16 +805,17 @@ string Dapai( vector<string> hand,vector<pair<string, pair<string, int> > > pack
             tmaxs=rootn[i];
         }
     }
-    return tmaxs;
+    return make_pair(tmax,tmaxs);
 }
+
 int main()
 {
-    //初始化牌池
+    //��ʼ���Ƴ�
     int num[6][10];
     for(int j=1;j<=3;j++)num[j][0]=36;num[4][0]=16;num[5][0]=12;
 	for(int i=1;i<=5;i++)for(int j=1;j<=9;j++)num[i][j]=4; 
 	
-	int turnID,paiqiang=144;//当前牌墙剩余多少牌 
+	int turnID,paiqiang=144;//��ǰ��ǽʣ������� 
     string stmp;
 #if SIMPLEIO
     cin >> turnID;
@@ -684,7 +857,7 @@ int main()
             sin >> stmp;
             hand.push_back(stmp);
             pii a=f(stmp);
-			num[a.first][0]--;num[a.first][a.second]--;//牌堆减少 
+			num[a.first][0]--;num[a.first][a.second]--;//�ƶѼ��� 
         }paiqiang-=4*13;
         string LastCard="",Laststmp="";int Lastuser; 
         for(int i = 2; i < turnID; i++) {
@@ -700,21 +873,21 @@ int main()
                 sin.str(response[i]);
                 string stmp1,stmp2;
                 sin >> stmp1 >> stmp2;
-                if(stmp1=="PLAY")hand.erase(find(hand.begin(), hand.end(), stmp2));//直接打出 
+                if(stmp1=="PLAY")hand.erase(find(hand.begin(), hand.end(), stmp2));//ֱ�Ӵ�� 
                 else if(stmp1=="GANG"){
                 	sort(hand.begin(),hand.end());
-                	for(int i=0;i<4;i++)unhand.push_back(stmp2);  //加入暗杠的手牌 
+                	for(int i=0;i<4;i++)unhand.push_back(stmp2);  //���밵�ܵ����� 
                 	for(int i=0;i<hand.size();i++){
-                		if(hand[i]==stmp2)hand[i][0]-='A'-'a';//把杠牌全部变成小写 
+                		if(hand[i]==stmp2)hand[i][0]-='A'-'a';//�Ѹ���ȫ�����Сд 
 					}
 					sort(hand.begin(),hand.end());
 				}
                 else if(stmp1=="BUGANG"){
                 	for(int i=0;i<hand.size();i++){
-                		if(hand[i]==stmp2)hand[i][0]-='A'-'a';//把杠牌全部变成小写 
+                		if(hand[i]==stmp2)hand[i][0]-='A'-'a';//�Ѹ���ȫ�����Сд 
 					}
 					for(int i=0;i<pack.size();i++){
-						if(pack[i].first=="PENG"&&pack[i].second.first==stmp2){  //之前一定碰过,直接改 
+						if(pack[i].first=="PENG"&&pack[i].second.first==stmp2){  //֮ǰһ������,ֱ�Ӹ� 
 							pack[i].first="GANG";
 						}
 					} 
@@ -729,22 +902,22 @@ int main()
             	    hua[itmp]++; paiqiang--;
 				}
 				else if(stmp=="DRAW"){
-					//空 
+					//�� 
 					paiqiang--;
 				}
 				else if(stmp=="PLAY"){
 					sin>>LastCard;
 					pii a=f(LastCard);
-			        num[a.first][0]--;num[a.first][a.second]--;//牌堆减少
+			        num[a.first][0]--;num[a.first][a.second]--;//�ƶѼ���
 				}
 				else if(stmp=="PENG"){
 					pii a=f(LastCard);
-			        num[a.first][0]-=2;num[a.first][a.second]-=2;//牌堆减少
-			        if(myPlayerID==itmp){  //相当于我碰牌成功 
+			        num[a.first][0]-=2;num[a.first][a.second]-=2;//�ƶѼ���
+			        if(myPlayerID==itmp){  //�൱�������Ƴɹ� 
 			        	
 						pack.push_back({"PENG",{LastCard,fff(myPlayerID,Lastuser)}});
 						for(int i=0;i<hand.size();i++){
-                		    if(hand[i]==LastCard)hand[i][0]-='A'-'a';//把碰牌全部变成小写 
+                		    if(hand[i]==LastCard)hand[i][0]-='A'-'a';//������ȫ�����Сд 
 					    }LastCard[0]-='A'-'a';
 					    hand.push_back(LastCard); 
 					    
@@ -752,20 +925,20 @@ int main()
 					} 
 			        sin>>LastCard;
 			        a=f(LastCard);
-			        num[a.first][0]--;num[a.first][a.second]--;//牌堆减少
+			        num[a.first][0]--;num[a.first][a.second]--;//�ƶѼ���
 			        if(myPlayerID==itmp){
-			        	hand.erase(find(hand.begin(), hand.end(), LastCard));//打出手牌 
+			        	hand.erase(find(hand.begin(), hand.end(), LastCard));//������� 
 					}
 				}
 				else if(stmp=="CHI"){
 					pii a=f(LastCard);
 			        num[a.first][0]++;num[a.first][a.second]++;
-			        if(myPlayerID==itmp){   //我吃的 
+			        if(myPlayerID==itmp){   //�ҳԵ� 
 			        	LastCard[0]-='A'-'a';
 						hand.push_back(LastCard); 
 						sort(hand.begin(),hand.end());
 					}
-					pii b=a;//备份 
+					pii b=a;//���� 
 			        string zhongCard;
 			        sin>>zhongCard;
 			        a=f(zhongCard);
@@ -773,16 +946,16 @@ int main()
 			        if(myPlayerID==itmp){
 			        	int dx[]={-1,0,1};
 					    for(int i=0;i<3;i++){
-					    	if(b.second==a.second+dx[i]){//这张是上家给的牌 
-							      pack.push_back({"CHI",{zhongCard,i}});
-								  continue;//那张之前判过了
+					    	if(b.second==a.second+dx[i]){//�������ϼҸ����� 
+							      pack.push_back({"CHI",{zhongCard,i+1}});
+								  continue;//����֮ǰ�й���
 							} 
 					    	string s=ff(a.first,a.second+dx[i]);
-						    for(int i=0;i<hand.size();i++){//吃的牌转化为死牌 
+						    for(int i=0;i<hand.size();i++){//�Ե���ת��Ϊ���� 
 			            		if(hand[i]==s){
 								    hand[i][0]-='A'-'a';
 									//sout<<hand[i]<<endl;
-									break;//一个就好 
+									break;//һ���ͺ� 
 								}
 							}
 						} 
@@ -790,19 +963,19 @@ int main()
 					}
 			        sin>>LastCard;
 			        if(myPlayerID==itmp){
-			        	hand.erase(find(hand.begin(), hand.end(), LastCard));//打出手牌 
+			        	hand.erase(find(hand.begin(), hand.end(), LastCard));//������� 
 					}
 					a=f(LastCard);
-			        num[a.first][0]--;num[a.first][a.second]--;//牌堆减少
+			        num[a.first][0]--;num[a.first][a.second]--;//�ƶѼ���
 				}
 				else if(stmp=="GANG"){
 					if(Laststmp=="DRAW"){
-						//暗杠 
-						//如果是别人 那我什么也做不了
-						//如果是自己 上面已经写过了 
+						//���� 
+						//����Ǳ��� ����ʲôҲ������
+						//������Լ� �����Ѿ�д���� 
 					}
 					else{
-						//明杠 
+						//���� 
 						pii a=f(LastCard);
 			            num[a.first][0]-=3;num[a.first][a.second]-=3;
 			            if(myPlayerID==itmp){
@@ -823,29 +996,27 @@ int main()
 				}
 				
 			}
-			Laststmp=stmp;Lastuser=itmp;//记录上一次操作 
+			Laststmp=stmp;Lastuser=itmp;//��¼��һ�β��� 
         }
         
 		sin.clear();
         sin.str(request[turnID]);
-        //正题开始 
+        //���⿪ʼ 
         sort(hand.begin(),hand.end()); 
         //for(int i=0;i<hand.size();i++)sout<<hand[i]<<" ";
         sin >> itmp;
-		bool ok=false;//表示是否已经给出回应
-        if(itmp == 2) {
-            sin>>stmp;//当前摸到的牌
-			hand.push_back(stmp); 
+		bool ok=false;//��ʾ�Ƿ��Ѿ�������Ӧ
+        if(itmp == 2) {//�Լ����� 
+            sin>>stmp;//��ǰ��������
+			//hand.push_back(stmp); 
 			pii a=f(stmp);
 			num[a.first][0]--;num[a.first][a.second]--;
 			sort(hand.begin(),hand.end());
-			if(Hu()){
-			    	//算番
-					MahjongInit();
+			if(!ok){
 					vector<string>myhand;
 					sort(hand.begin(),hand.end());
 					for(auto i:hand){
-						if(i[0]<'a')myhand.push_back(i);
+						if(i[0]<'a')myhand.push_back(i);   
 						else break;
 					}
 					for(auto i:unhand){
@@ -859,32 +1030,72 @@ int main()
 					sin>>stmp1>>ID>>stmp1;
 					if(ID==myPlayerID&&(stmp1=="GANG"||stmp1=="BUGANG"))isGANG=1;
 					if(paiqiang==0)isLAST=true;
-				    vector<pair<int,string>> Fan=MahjongFanCalculator(pack, myhand, stmp, hua[myPlayerID], isZIMO, isJUEZHANG, isGANG, isLAST, myPlayerID, quan);
-		            int ans=0;
+					MahjongInit();
+					try{
+					    auto re = MahjongFanCalculator(pack, myhand, stmp, 0, isZIMO, isJUEZHANG, isGANG, isLAST, myPlayerID, quan);
+					    int ans=0;
+						for(auto i : re){
+					        ans+=i.first;
+					    }
+					    if(ans>=8){sout<<"HU";ok=true;}
+					}
+					catch(const string &error){
+					    //
+					}
+					
+			} 
+			/*if(Hu()){
+			    	//�㷬 
+					MahjongInit();
+					vector<string>myhand;
+					sort(hand.begin(),hand.end());
+					for(auto i:hand){
+						if(i[0]<'a')myhand.push_back(i);   
+						else break;
+					}
+					myhand.erase(find(myhand.begin(), myhand.end(), stmp));
+					for(auto i:unhand){
+						myhand.push_back(i);
+					}
+					bool isZIMO=true,isJUEZHANG=0,isGANG=0,isLAST=0;
+					if(num[a.first][a.second]==0)isJUEZHANG=true;
+					sin.clear();
+					sin.str(request[turnID-1]);
+					string stmp1;int ID;
+					sin>>stmp1>>ID>>stmp1;
+					if(ID==myPlayerID&&(stmp1=="GANG"||stmp1=="BUGANG"))isGANG=1;
+					if(paiqiang==0)isLAST=true;
+				    auto Fan=MahjongFanCalculator(pack, myhand, stmp, 0, isZIMO, isJUEZHANG, isGANG, isLAST, myPlayerID, quan);
+		            
+					int ans=0;
 					for(auto i:Fan){
 		            	ans+=i.first;
 					}
+					//sout<< ans<<" ";
 					if(ans>=8){ok=true;sout<<"HU";}
-			}
+			}*/ 
 			if(!ok){
 					int CardCount=0,i;
+					sort(hand.begin(),hand.end());
 					for( i=0;i<hand.size();i++){
 						if(hand[i][0]>='a')break;
 					} 
-					CardCount=i;//当前可操作的牌数
-					int mynums[6][10]={0};//当前手牌统计
+					CardCount=i;//��ǰ�ɲ���������
+					int mynums[6][10]={0};//��ǰ����ͳ��
 					for(int i=0;i<CardCount;i++){
 						pii a=f(hand[i]);
 						mynums[a.first][a.second]++;
 						mynums[a.first][0]++;
 					} 
-					
+					    pii a=f(stmp);
+						mynums[a.first][a.second]++;
+						mynums[a.first][0]++;
 					int dx[]={0,9,9,9,4,3};
 					for(int i=1;i<=5;i++)    
-					{
+					{  
 						for(int j=1;j<=dx[i];j++)
 						{
-							if(mynums[i][j]==4){//检测是否有四张一样的 
+							if(mynums[i][j]==4){//����Ƿ�������һ���� 
 								string s="GANG "+ff(i,j);
 								sout<<s;
 								ok=true;
@@ -895,39 +1106,166 @@ int main()
 					}
 					if(!ok)
 					{
-						//检测是否需要补杠
-						stmp[0]-='A'-'a';int cnt=0;
-						for(int i=CardCount;i<hand.size();i++){
-							if(stmp==hand[i])cnt++;
-						}
-						if(cnt==3){
-							stmp[0]-='a'-'A';//手牌还原 
-							string s="BUGANG "+stmp;
-							sout<<s;
-							ok=true;
+						//����Ƿ���Ҫ����
+						string sstmp=stmp;sstmp[0]-='A'-'a';
+						for(int i=0;i<pack.size();i++)
+						{
+							if(pack[i].first=="PENG"&&pack[i].second.first==stmp)
+							{
+								hand.push_back(sstmp);string s="BUGANG "+stmp;
+								sout<<s;ok=true;pack[i].first="GANG";break;
+							}
 						}
 					}
 					if(!ok)
 					{
-					    //策略
-						string Card=Dapai(hand,pack,num,myPlayerID,quan);
-						hand.erase(find(hand.begin(), hand.end(), Card));
-						sout<<"PLAY "<<Card;ok=true;
+					    //����
+					    hand.push_back(stmp);
+						auto Card=Dapai(hand,pack,num,myPlayerID,quan);
+						hand.erase(find(hand.begin(), hand.end(), Card.second));
+						sout<<"PLAY "<<Card.second;ok=true;
                     } 
 					
 			}
 			
 			
         } 
-		else if(itmp==3){
+		else if(itmp==3){//���˴�� 
             int  playerID;
             sin>>playerID>>stmp;
+            if(playerID!=myPlayerID)
+            {
+            	string Card;
+            	if(stmp=="PLAY"||stmp=="PENG")sin>>Card;
+            	else if(stmp=="CHI")sin>>Card>>Card;
+            	else {ok=true;sout<<"PASS";}
+            	if(!ok)
+            	{
+			        	//��HU
+			        	{
+						        vector<string>myhand;
+						        pii a=f(Card);
+								sort(hand.begin(),hand.end());
+								for(auto i:hand){
+									if(i[0]<'a')myhand.push_back(i);   
+									else break;
+								}
+								for(auto i:unhand){
+									myhand.push_back(i);
+								}
+								bool isZIMO=0,isJUEZHANG=0,isGANG=0,isLAST=0;
+								if(num[a.first][a.second]==0)isJUEZHANG=true;
+								sin.clear();
+								sin.str(request[turnID-1]);
+								string stmp1;int ID;
+								sin>>stmp1>>ID>>stmp1;
+								if((stmp1=="GANG"||stmp1=="BUGANG"))isGANG=1;
+								if(paiqiang==0)isLAST=true;
+								MahjongInit();
+								try{
+								    auto re = MahjongFanCalculator(pack, myhand, Card, 0, isZIMO, isJUEZHANG, isGANG, isLAST, myPlayerID, quan);
+								    int ans=0;
+									for(auto i : re){
+								        ans+=i.first;
+								    }
+								    if(ans>=8){sout<<"HU";ok=true;}
+								}
+								catch(const string &error){
+								    //
+								}
+						}
+						if(!ok)
+						{
+							int mynums[6][10]={0};//��ǰ����ͳ��
+				        	{
+				        		int CardCount=0,i;
+								sort(hand.begin(),hand.end());
+								for( i=0;i<hand.size();i++){
+									if(hand[i][0]>='a')break;
+								} 
+								CardCount=i;//��ǰ�ɲ���������
+								
+								for(int i=0;i<CardCount;i++){
+									pii a=f(hand[i]);
+									mynums[a.first][a.second]++;
+									mynums[a.first][0]++;
+								} 
+							}
+							vector<pair<double,string> > Celue;
+							pair<double,string> val1={judge(hand,pack,num,myPlayerID,quan),"PASS"};
+							Celue.push_back(val1);
+							pii a=f(Card);
+							if(mynums[a.first][a.second]==2)
+							{
+								vector<string>uhand=hand;
+								for(int i=0;i<uhand.size();i++){
+									if(uhand[i]==Card)uhand[i][0]-='A'-'a';
+								}
+								auto upack=pack;
+								upack.push_back({"PENG",{Card,fff(myPlayerID,playerID)}});
+								auto val2=Dapai(uhand,upack,num,myPlayerID,quan);
+								val2.second="PENG "+val2.second;
+								Celue.push_back(val2);
+							}
+							else if(mynums[a.first][a.second]==3)
+							{
+								vector<string>uhand=hand;
+								for(int i=0;i<uhand.size();i++){
+									if(uhand[i]==Card)uhand[i][0]-='A'-'a';
+								}
+								auto upack=pack;
+								upack.push_back({"GANG",{Card,fff(myPlayerID,playerID)}});
+								auto val2=Dapai(uhand,upack,num,myPlayerID,quan);
+								val2.second="GANG";
+								Celue.push_back(val2);
+							}
+							if(fff(myPlayerID,playerID)==0&&a.first<=3&&((a.second>2&&mynums[a.first][a.second-2]>0&&mynums[a.first][a.second-1]>0)||(a.second>1&&a.second<9&&mynums[a.first][a.second-1]>0&&mynums[a.first][a.second+1]>0)||(a.second<=7&&mynums[a.first][a.second+1]>0&&mynums[a.first][a.second+2]>0))) 
+							{
+								vector<string>uhand=hand;
+						        vector<pair<string, pair<string, int> > > upack=pack;
+						        if((a.second>2&&mynums[a.first][a.second-2]>0&&mynums[a.first][a.second-1]>0))
+								{
+						           upack.push_back({"CHI",{ff(a.first,a.second-1),3}});
+							       string s1=ff(a.first,a.second-2); uhand.erase(find(uhand.begin(), uhand.end(), s1));
+							              s1=ff(a.first,a.second-1); uhand.erase(find(uhand.begin(), uhand.end(), s1));
+							       auto val2=Dapai(uhand,upack,num,myPlayerID,quan);
+								   val2.second="CHI "+ff(a.first,a.second-1)+" "+val2.second;	
+								   Celue.push_back(val2);
+								}
+								if((a.second>1&&a.second<9&&mynums[a.first][a.second-1]>0&&mynums[a.first][a.second+1]>0))
+								{
+									upack.push_back({"CHI",{ff(a.first,a.second),2}});
+									string s1=ff(a.first,a.second-1); uhand.erase(find(uhand.begin(), uhand.end(), s1));
+									       s1=ff(a.first,a.second+1); uhand.erase(find(uhand.begin(), uhand.end(), s1));
+								    auto val2=Dapai(uhand,upack,num,myPlayerID,quan);
+								    val2.second="CHI "+ff(a.first,a.second)+" "+val2.second;
+								}
+								if((a.second<=7&&mynums[a.first][a.second+1]>0&&mynums[a.first][a.second+2]>0))
+								{
+									
+									upack.push_back({"CHI",{ff(a.first,a.second+1),1}});
+									string s1=ff(a.first,a.second+1); uhand.erase(find(uhand.begin(), uhand.end(), s1));
+									       s1=ff(a.first,a.second+2); uhand.erase(find(uhand.begin(), uhand.end(), s1));     
+								    auto val2=Dapai(uhand,upack,num,myPlayerID,quan);
+								    val2.second="CHI "+ff(a.first,a.second+1)+" "+val2.second;
+								}	
+							}
+							sort(Celue.begin(),Celue.end());
+							sout<<Celue[Celue.size()-1].second;ok=true; 
+						}
+						 
+						
+				}
+				
+            	
+			}
+			/*
             if(stmp=="PLAY"&&playerID!=myPlayerID){
 				int CardCount=0,i;
 				for( i=0;i<hand.size();i++){
 					if(hand[i][0]>='a')break;
-				} 
-				CardCount=i;//当前可操作的牌数
+				}   
+				CardCount=i;//��ǰ�ɲ���������
 				int con[6][10]={0};
 				for(int i=0;i<CardCount;i++){
 					pii a=f(hand[i]);
@@ -938,10 +1276,10 @@ int main()
 				pii a=f(Card);
 				if(con[a.first][a.second]==2){
 					sout<<"PENG ";
-					//出牌 
+					//���� 
 					vector<string>uhand=hand;
 					uhand.erase(find(uhand.begin(), uhand.end(), Card));
-					uhand.erase(find(uhand.begin(), uhand.end(), Card));//删掉两次
+					uhand.erase(find(uhand.begin(), uhand.end(), Card));//ɾ������
 					vector<pair<string, pair<string, int> > > upack=pack;
 					upack.push_back({"PENG",{Card,fff(myPlayerID,playerID)}}); 
 					string Card=Dapai(uhand,upack,num,myPlayerID,quan);
@@ -980,13 +1318,13 @@ int main()
 						upack.push_back({"CHI",{ff(a.first,a.second+1),1}});
 						string s1=ff(a.first,a.second+1); uhand.erase(find(uhand.begin(), uhand.end(), s1));
 						     //s1=ff(a.first,a.second  ); uhand.erase(find(uhand.begin(), uhand.end(), s1));
-						       s1=ff(a.first,a.second+2); uhand.erase(find(uhand.begin(), uhand.end(), s1));     
+						       s1=ff(a.first,a.semynumsd+2); uhand.erase(find(uhand.begin(), uhand.end(), s1));     
 					    string Card2=Dapai(uhand,upack,num,myPlayerID,quan);
-					    sout<<ff(a.first,a.second+1)<<" "<<Card2;ok=true;
+					    sout<<ff(a.first,a.semynumsd+1)<<" "<<Card2;ok=true;
 					}		
 				}
 				// 
-			}
+			}*/
             if(!ok)sout<<"PASS"; 
         }
         
